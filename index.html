@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Antbleed - Exposing the malicious backdoor on Antminer S9, T9, R4, L3 and any upgraded firmware since July 2016</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="
+Bitmain has installed a backdoor in many Antminer devices that illegally transmit personally identifying information (serial number + mac address) to the remote system. This allows Bitmain to identify machines according to sales and delivery records.
+">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:site" content="@antbleed"/>
+    <meta name="twitter:creator" content="@antbleed"/>
+    <meta name="twitter:title" content="The Antbleed Backdoor"/>
+    <meta name="twitter:description" content="Exposing the malicious backdoor on Antminer S9, T9, R4, L3 and any upgraded firmware since July 2016"/>
+    <meta name="twitter:image" content="http://www.antbleed.com/antbleed_v1.png"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Ceviche+One|Luckiest+Guy|Shojumaru|Bungee|Varela+Round" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="common.css?ee91eb45">
+
+
+  </head>
+  <body>
+    <header>
+
+
+    </header>
+
+
+<main>
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m8">
+          <h2>The Antbleed Backdoor</h2>
+          <p class="flow-text">Antbleed is a backdoor introduced by Bitmain into the firmware of their bitcoin mining hardware Antminer.     </p>
+          <p class="flow-text">The firmware checks-in with a central service randomly every 1 to 11 minutes. Each check-in transmits the Antminer serial number, MAC address and IP address. Bitmain can use this check-in data to cross check against customer sales and delivery records making it personally identifiable. <strong class="red accent-4 white-text">The remote service can then return "false" which will stop the miner from mining.</strong>
+          </p>
+          <p class="flow-text">The patch was introduced <a href="https://pastebin.com/jREuwQ8b" rel="external">here (pastebin) </a>and can be seen in the source: <a href="https://github.com/bitmaintech/bmminer/blob/master/driver-btm-c5.c#L7755-L7756" rel="external">here (github)</a>
+          </p>
+        </div>
+        <div class="col s12 m4"><img src="antbleed_v1.png" width="300px" class="responsive-img"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <h4>How bad is it?</h4>
+        <div class="divider grey darken-4"></div><br/>
+        <p class="flow-text"><strong class="red accent-4 white-text">At worst, this firmware backdoor allows Bitmain to shut off a large section of the global hashrate </strong>(estimated to be at up to 70% of all mining equipment). It can also be used to directly target specific machines or customers. Standard inbound firewall rules will not protect against this because the Antminer makes outbound connections. 
+        </p>
+        <p class="flow-text">Even without Bitmain being malicious, the API is unauthenticated and would allow any MITM, DNS or domain hijack to shutdown Antminers globally. Additionally the domain in question DNS is hosted by Cloudflare making it trivially subjected to government orders and state control.</p>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <h4>Am I Vulnerable?</h4>
+        <div class="divider grey darken-4"></div><br/>
+        <p class="flow-text">All recent S9 hardware is affected, except possibly very early generation S9s. Additionally, L3, T9 and R4 series hardware are likely to be affected as well. The commit date for the backdoor kill switch is July 11th, 2016, so applying a firmware update after this date is a good indication that your Bitmain hardware is affected.</p>
+        <p class="flow-text">You can check if your Antminer is vulnerable to this attack by SSHing to the Antminer, and changing the /etc/hosts file on the device to include:</p>
+        <p><strong><code>139.59.36.141     auth.minerlink.com</code></strong>
+        </p>
+        <p class="flow-text">This will cause the Antminer to connect to our test server instead of the default Bitmain servers. If your miner is vulnerable it will cease mining within 11 minutes, or you can reboot your miner and the connection will be made on startup.</p>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <h4>How Can I Protect Myself?</h4>
+        <div class="divider grey darken-4"></div><br/>
+        <p class="flow-text">The easiest way to make sure your Antminer is not vulnerable to this backdoor is to add the following to your /etc/hosts on the device to</p>
+        <p><strong><code>127.0.0.1    auth.minerlink.com</code></strong>
+        </p>
+        <p class="flow-text">This will cause the Antminer to connect to your own local machine bypassing the check-in with Bitmain without interrupting normal mining behavior.</p>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <h4>Is This Just A User Feature?</h4>
+        <div class="divider grey darken-4"></div><br/>
+        <p class="flow-text">No. The domain and port are hard coded in the source files, theres no way to change them without recompling and loading new firmware.  There is no way a user could make use of it in any realistic way.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+    <footer class="page-footer red darken-4">
+      <div class="container center callout"></div>
+      <div class="footer-copyright grey darken-4">
+        <div class="container grey-text">
+          <p><strong>antbleed.com  </strong>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="text/javascript" src="common.js?b864c148"></script>
+  </body>
+</html>
